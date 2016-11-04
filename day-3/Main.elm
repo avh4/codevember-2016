@@ -21,9 +21,9 @@ tile color =
                 , rectangle (r * 2) 100
                     |> solidFill (Color.rgb 200 200 200)
                     |> move 0 50
-                , segment ( -r, 0 ) ( -r, 50 )
+                , segment ( -r, -0.8 ) ( -r, 50 )
                     |> solid 10 color
-                , segment ( r, 0 ) ( r, 50 )
+                , segment ( r, -0.8 ) ( r, 50 )
                     |> solid 10 color
                 ]
     in
