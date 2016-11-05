@@ -108,10 +108,8 @@ main =
             , Cmd.batch
                 [ Random.generate NewTriangleData modelGenerator
                 , Http.get palleteDecoder
-                    "http://localhost:8001/color.json"
-                    --  "http://www.colourlovers.com/api/palettes/random?format=json"
-                    |>
-                        Task.perform (always <| NewPallete []) NewPallete
+                    "https://crossorigin.me/https://www.colourlovers.com/api/palettes/random?format=json"
+                    |> Task.perform (always <| NewPallete []) NewPallete
                 ]
             )
         , subscriptions = \_ -> Sub.none
