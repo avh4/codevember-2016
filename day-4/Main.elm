@@ -76,11 +76,21 @@ type alias Triangle =
 type Msg
     = NewTriangleData (List (List Triangle))
     | NewPallete (List Color)
+    | NewCacheBuster Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NewCacheBuster token ->
+            ( model
+            , Http.get palleteDecoder
+                ("https://crossorigin.me/https://www.colourlovers.com/api/palettes/random?format=json&sequence="
+                    ++ toString token
+                )
+                |> Task.perform (always <| NewPallete []) NewPallete
+            )
+
         NewPallete colors ->
             ( { model | pallete = colors }, Cmd.none )
 
@@ -107,9 +117,7 @@ main =
               }
             , Cmd.batch
                 [ Random.generate NewTriangleData modelGenerator
-                , Http.get palleteDecoder
-                    "https://crossorigin.me/https://www.colourlovers.com/api/palettes/random?format=json"
-                    |> Task.perform (always <| NewPallete []) NewPallete
+                , Random.generate NewCacheBuster (Random.int 0 100000000000)
                 ]
             )
         , subscriptions = \_ -> Sub.none
