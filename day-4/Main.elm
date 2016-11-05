@@ -23,7 +23,7 @@ triangleRow pallete triangles =
     let
         chooseColor i =
             if List.length pallete == 0 then
-                Color.black
+                Color.rgb 245 245 230
             else
                 pallete
                     |> List.drop (i % List.length pallete)
@@ -80,7 +80,7 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case Debug.log "update" msg of
+    case msg of
         NewPallete colors ->
             ( { model | pallete = colors }, Cmd.none )
 
