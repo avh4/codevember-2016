@@ -15,7 +15,7 @@ main =
         { init = ( 0, Cmd.none )
         , view = scene >> WebGL.toHtml [ width 400, height 400 ]
         , subscriptions = (\model -> AnimationFrame.diffs Basics.identity)
-        , update = (\dt theta -> ( theta + dt / 5000, Cmd.none ))
+        , update = (\dt theta -> ( theta + dt / 1000, Cmd.none ))
         }
 
 
@@ -193,9 +193,13 @@ uniforms color x y scale angle t =
             (vec3 2 3 5)
     in
         { rotation =
-            mul (makeRotate (3 * t) (vec3 0 1 0)) (makeRotate (2 * t) (vec3 1 0 0))
+            mul
+                (makeRotate (1 * t) (vec3 0 1 0))
+                (makeRotate (degrees <| 20 * sin (t / 5)) (vec3 1 0 0))
         , transform =
             Math.Matrix4.identity
+                |> Math.Matrix4.translate (vec3 0 0 -0.5)
+                |> Math.Matrix4.scale (vec3 1 1 0.3)
                 |> Math.Matrix4.translate (vec3 x y 0)
                 |> Math.Matrix4.scale (vec3 scale scale 1)
                 |> Math.Matrix4.rotate (degrees angle) Math.Vector3.k
@@ -204,7 +208,7 @@ uniforms color x y scale angle t =
         , shade = 0.8
         , shapeColor = colorToVec color
         , cameraPos = cameraPos
-        , lightColor = vec3 1 1 1
+        , lightColor = vec3 0.8 0.8 0.8
         , lightPos = vec3 -2 2 4
         }
 
