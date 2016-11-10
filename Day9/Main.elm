@@ -164,12 +164,12 @@ face rawColor a b c d =
 
 scene : Float -> List Renderable
 scene t =
-    [ render vertexShader fragmentShader square (uniforms Color.green 0 0 1 -45 t)
-    , render vertexShader fragmentShader triangle (uniforms Color.orange 0 0 1 45 t)
-    , render vertexShader fragmentShader triangle (uniforms Color.charcoal 0 0 2 135 t)
-    , render vertexShader fragmentShader triangle (uniforms Color.blue 0 0 2 225 t)
-    , render vertexShader fragmentShader triangle (uniforms Color.orange (sqrt 0.5) (-1 * sqrt 0.5) 1 -45 t)
-    , render vertexShader fragmentShader triangle (uniforms Color.blue (2 * sqrt 0.5) (2 * sqrt 0.5) (sqrt 2) 180 t)
+    [ render vertexShader fragmentShader square (uniforms (Color.rgb 0x83 0xC8 0x33) 0 0 1 -45 t)
+    , render vertexShader fragmentShader triangle (uniforms (Color.rgb 0xEF 0xA5 0x00) 0 0 1 45 t)
+    , render vertexShader fragmentShader triangle (uniforms (Color.rgb 0x5A 0x63 0x78) 0 0 2 135 t)
+    , render vertexShader fragmentShader triangle (uniforms (Color.rgb 0x5F 0xB4 0xCA) 0 0 2 225 t)
+    , render vertexShader fragmentShader triangle (uniforms (Color.rgb 0xEF 0xA5 0x00) (sqrt 0.5) (-1 * sqrt 0.5) 1 -45 t)
+    , render vertexShader fragmentShader triangle (uniforms (Color.rgb 0x5F 0xB4 0xCA) (2 * sqrt 0.5) (2 * sqrt 0.5) (sqrt 2) 180 t)
     ]
 
 
@@ -189,9 +189,6 @@ type alias Uniforms =
 uniforms : Color -> Float -> Float -> Float -> Float -> Float -> Uniforms
 uniforms color x y scale angle t =
     let
-        t' =
-            0
-
         cameraPos =
             (vec3 2 3 5)
     in
