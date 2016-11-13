@@ -2,22 +2,36 @@ module Main exposing (..)
 
 import Collage
 import Element
-import Day13.Eye as Eye
+import Day13.Eye as Eye exposing (Eye)
 import Html exposing (Html)
 import Html.App
 import Time exposing (Time)
-import Animation
 
 
 type alias Model =
-    { blinkStart : Time
+    { eyes : List ( ( Float, Float ), Eye )
     , now : Time
     }
 
 
 initialModel : Model
 initialModel =
-    { blinkStart = 0
+    { eyes =
+        [ ( ( 0, 0 )
+          , { irisSize = 120
+            , pupilSize = 50
+            , eyeSize = 200
+            , blinkStart = 0
+            }
+          )
+        , ( ( 150, 150 )
+          , { irisSize = 60
+            , pupilSize = 25
+            , eyeSize = 100
+            , blinkStart = 0
+            }
+          )
+        ]
     , now = 0
     }
 
@@ -34,33 +48,25 @@ update msg model =
             ( { model | now = t }, Cmd.none )
 
         StartBlink t ->
-            ( { model | blinkStart = t }, Cmd.none )
+            ( { model
+                | eyes =
+                    List.map (\( p, eye ) -> ( p, Eye.startBlink t eye ))
+                        model.eyes
+              }
+            , Cmd.none
+            )
 
 
 view : Model -> Html msg
 view model =
-    let
-        closeAnimation =
-            Animation.animation model.blinkStart
-                |> Animation.from 1.0
-                |> Animation.to 0
-                |> Animation.duration 200
-
-        openAnimation =
-            Animation.animation model.blinkStart
-                |> Animation.from 0.0
-                |> Animation.to 1.0
-                |> Animation.duration 200
-                |> Animation.delay 200
-    in
-        Collage.collage 750
-            500
-            [ Eye.eye
-                ((Animation.animate model.now closeAnimation)
-                    + (Animation.animate model.now openAnimation)
-                )
-            ]
-            |> Element.toHtml
+    model.eyes
+        |> List.map
+            (\( ( x, y ), eye ) ->
+                Eye.view model.now eye
+                    |> Collage.move ( x, y )
+            )
+        |> Collage.collage 750 500
+        |> Element.toHtml
 
 
 main : Program Never
@@ -70,7 +76,7 @@ main =
         , subscriptions =
             \_ ->
                 Sub.batch
-                    [ Time.every 20 Tick
+                    [ Time.every 40 Tick
                     , Time.every 3000 StartBlink
                     ]
         , update = update
