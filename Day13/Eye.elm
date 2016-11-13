@@ -55,7 +55,8 @@ view now model =
                 + (Animation.animate now openAnimation)
     in
         Collage.group
-            [ iris model.pupilSize
+            [ whites model.irisSize model.eyeSize
+            , iris model.pupilSize
                 model.irisSize
                 (sin rotationT)
                 (sin (rotationT * 3))
@@ -107,6 +108,15 @@ pupil : Float -> Collage.Form
 pupil size =
     Collage.circle size
         |> Collage.filled Color.black
+
+
+whites : Float -> Float -> Collage.Form
+whites height width =
+    Collage.polygon
+        (Shapes.curve ( width, 0 ) ( 0, (height * 2) ) ( -width, 0 ) 20
+            ++ Shapes.curve ( -width, 0 ) ( 0, -(height * 2) ) ( width, 0 ) 20
+        )
+        |> Collage.filled Color.white
 
 
 eyelids : Float -> Float -> Float -> Collage.Form
