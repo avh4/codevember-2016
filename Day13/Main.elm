@@ -3,13 +3,16 @@ module Main exposing (..)
 import Collage
 import Element
 import Day13.Eye as Eye exposing (Eye)
+import Day13.TrippyBackground as TrippyBackground
 import Html exposing (Html)
 import Html.App
+import Html.Attributes
 import Time exposing (Time)
 import Random
 import Random.Extra
 import Color exposing (Color)
 import Animation
+import AnimationFrame
 
 
 appearTime : Float
@@ -102,6 +105,16 @@ update msg model =
 
 view : Model -> Html msg
 view model =
+    Html.div [ Html.Attributes.style [ ( "position", "relative" ) ] ]
+        [ Html.div [ Html.Attributes.style [ ( "position", "absolute" ) ] ]
+            [ TrippyBackground.view 750 500 (model.now / 1000 - 1479077864) ]
+        , Html.div [ Html.Attributes.style [ ( "position", "absolute" ) ] ]
+            [ eyesView model ]
+        ]
+
+
+eyesView : Model -> Html msg
+eyesView model =
     [ case model.disappearingEye of
         Nothing ->
             Collage.group []
@@ -118,11 +131,10 @@ view model =
                     Collage.group []
                 else
                     Eye.view model.now eye
+                        |> Collage.scale (0.7 + 0.3 * Animation.animate model.now alphaAnimation)
                         |> Collage.move ( x, y )
                         |> Collage.alpha
-                            (alphaAnimation
-                                |> Animation.animate model.now
-                            )
+                            (Animation.animate model.now alphaAnimation)
     , model.eyes
         |> List.map
             (\( ( x, y ), eye ) ->
@@ -146,11 +158,10 @@ view model =
                     Collage.group []
                 else
                     Eye.view model.now eye
+                        |> Collage.scale (0.7 + 0.3 * Animation.animate model.now alphaAnimation)
                         |> Collage.move ( x, y )
                         |> Collage.alpha
-                            (alphaAnimation
-                                |> Animation.animate model.now
-                            )
+                            (alphaAnimation |> Animation.animate model.now)
     ]
         |> Collage.collage 750 500
         |> Element.toHtml
@@ -202,7 +213,7 @@ randomEye =
         (map7 Eye
             (Random.float 50 250)
             (Random.float 0.2 0.7)
-            (Random.float 0.2 0.9)
+            (Random.float 0.2 0.8)
             (Random.Extra.constant 0)
             skinColorGenerator
             irisColorGenerator
@@ -220,7 +231,7 @@ main =
         , subscriptions =
             \_ ->
                 Sub.batch
-                    [ Time.every 40 Tick
+                    [ AnimationFrame.times Tick
                     , Time.every 3000 StartBlink
                     , Time.every 10000 ChangeEye
                     ]
