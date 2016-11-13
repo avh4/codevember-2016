@@ -39,10 +39,10 @@ initialModel =
 
 type Msg
     = Tick Time
-    | StartBlink Time
-    | ChangeEye Time
+    | StartBlink
+    | ChangeEye
     | ResetEyes (List ( ( Float, Float ), Eye ))
-    | NewEye Time ( ( Float, Float ), Eye )
+    | NewEye ( ( Float, Float ), Eye )
 
 
 promoteAppearingEye : Model -> Model
@@ -64,16 +64,16 @@ promoteAppearingEye model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Tick now ->
-            ( { model | now = now }
+        Tick diff ->
+            ( { model | now = model.now + diff }
                 |> promoteAppearingEye
             , Cmd.none
             )
 
-        StartBlink now ->
+        StartBlink ->
             ( { model
                 | eyes =
-                    List.map (\( p, eye ) -> ( p, Eye.startBlink now eye ))
+                    List.map (\( p, eye ) -> ( p, Eye.startBlink model.now eye ))
                         model.eyes
               }
             , Cmd.none
@@ -84,22 +84,22 @@ update msg model =
             , Cmd.none
             )
 
-        NewEye start ( ( x, y ), eye ) ->
-            ( { model | appearingEye = Just ( start, ( x, y ), eye ) }
+        NewEye ( ( x, y ), eye ) ->
+            ( { model | appearingEye = Just ( model.now, ( x, y ), eye ) }
             , Cmd.none
             )
 
-        ChangeEye now ->
+        ChangeEye ->
             case model.eyes of
                 [] ->
                     ( model, Cmd.none )
 
                 ( point, eye ) :: rest ->
                     ( { model
-                        | disappearingEye = Just ( now, point, eye )
+                        | disappearingEye = Just ( model.now, point, eye )
                         , eyes = rest
                       }
-                    , Random.generate (NewEye now) randomEye
+                    , Random.generate NewEye randomEye
                     )
 
 
@@ -107,7 +107,7 @@ view : Model -> Html msg
 view model =
     Html.div [ Html.Attributes.style [ ( "position", "relative" ) ] ]
         [ Html.div [ Html.Attributes.style [ ( "position", "absolute" ) ] ]
-            [ TrippyBackground.view 750 500 (model.now / 1000 - 1479077864) ]
+            [ TrippyBackground.view 750 500 (model.now / 1000) ]
         , Html.div [ Html.Attributes.style [ ( "position", "absolute" ) ] ]
             [ eyesView model ]
         ]
@@ -231,9 +231,9 @@ main =
         , subscriptions =
             \_ ->
                 Sub.batch
-                    [ AnimationFrame.times Tick
-                    , Time.every 3000 StartBlink
-                    , Time.every 10000 ChangeEye
+                    [ AnimationFrame.diffs Tick
+                    , Time.every 3000 (always StartBlink)
+                    , Time.every 10000 (always ChangeEye)
                     ]
         , update = update
         , view = view
