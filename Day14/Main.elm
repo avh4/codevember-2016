@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (Html)
 import Html.App
 import Html.Events
+import Html.Attributes
 import Color exposing (Color)
 import Time exposing (Time)
 import Collage
@@ -76,9 +77,9 @@ update msg model =
 view : Model -> Html Msg
 view model =
     Html.div []
-        [ Html.button [ Html.Events.onClick (NewColors) ] [ Html.text "Debug" ]
+        [ Html.button [ Html.Events.onClick NewColors, Html.Attributes.style [ ( "font-size", "300%" ) ] ] [ Html.text "Flip!" ]
         , [ TileGrid.view model.now model.tileGrid ]
-            |> Collage.collage 750 500
+            |> Collage.collage 750 400
             |> Element.toHtml
         ]
 
