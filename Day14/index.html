@@ -12491,65 +12491,70 @@ var _user$project$Day14_TileGrid$init = function (colors) {
 var _user$project$Day14_TileGrid$startNextTileAnimation = F2(
 	function (now, _p5) {
 		var _p6 = _p5;
-		var _p8 = _p6._0;
-		var _p7 = _avh4$elm_fifo$Fifo$remove(_p8.pendingAnimations);
+		var _p10 = _p6._0;
+		var _p7 = _avh4$elm_fifo$Fifo$remove(_p10.pendingAnimations);
 		if (_p7._0.ctor === 'Just') {
-			return _user$project$Day14_TileGrid$Model(
+			var _p9 = _p7._0._0._0._1;
+			var _p8 = _p7._0._0._0._0;
+			return A2(
+				_elm_lang$core$Dict$member,
+				{ctor: '_Tuple2', _0: _p8, _1: _p9},
+				_p10.currentAnimations) ? _user$project$Day14_TileGrid$Model(_p10) : _user$project$Day14_TileGrid$Model(
 				_elm_lang$core$Native_Utils.update(
-					_p8,
+					_p10,
 					{
 						currentAnimations: A3(
 							_elm_lang$core$Dict$insert,
-							{ctor: '_Tuple2', _0: _p7._0._0._0._0, _1: _p7._0._0._0._1},
+							{ctor: '_Tuple2', _0: _p8, _1: _p9},
 							{ctor: '_Tuple2', _0: now, _1: _p7._0._0._1},
-							_p8.currentAnimations),
+							_p10.currentAnimations),
 						pendingAnimations: _p7._1
 					}));
 		} else {
 			return _user$project$Day14_TileGrid$Model(
 				_elm_lang$core$Native_Utils.update(
-					_p8,
+					_p10,
 					{pendingAnimations: _p7._1}));
 		}
 	});
 var _user$project$Day14_TileGrid$clearFinishedAnimations = F2(
-	function (now, _p9) {
-		var _p10 = _p9;
-		var _p18 = _p10._0;
+	function (now, _p11) {
+		var _p12 = _p11;
+		var _p20 = _p12._0;
 		var finalizeColor = F3(
-			function (_p12, _p11, acc) {
-				var _p13 = _p12;
-				var _p14 = _p11;
+			function (_p14, _p13, acc) {
+				var _p15 = _p14;
+				var _p16 = _p13;
 				return A3(
 					_elm_lang$core$Dict$insert,
-					{ctor: '_Tuple2', _0: _p13._0, _1: _p13._1},
-					_p14._1,
+					{ctor: '_Tuple2', _0: _p15._0, _1: _p15._1},
+					_p16._1,
 					acc);
 			});
 		var isDone = F2(
-			function (key, _p15) {
-				var _p16 = _p15;
+			function (key, _p17) {
+				var _p18 = _p17;
 				return A2(
 					_mgold$elm_animation$Animation$isDone,
 					now,
-					_user$project$Day14_TileGrid$inAnimation(_p16._0));
+					_user$project$Day14_TileGrid$inAnimation(_p18._0));
 			});
-		var _p17 = A2(_elm_lang$core$Dict$partition, isDone, _p18.currentAnimations);
-		var finishedAnimations = _p17._0;
-		var remainingAnimations = _p17._1;
+		var _p19 = A2(_elm_lang$core$Dict$partition, isDone, _p20.currentAnimations);
+		var finishedAnimations = _p19._0;
+		var remainingAnimations = _p19._1;
 		return _user$project$Day14_TileGrid$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p18,
+				_p20,
 				{
 					currentAnimations: remainingAnimations,
-					tiles: A3(_elm_lang$core$Dict$foldl, finalizeColor, _p18.tiles, finishedAnimations)
+					tiles: A3(_elm_lang$core$Dict$foldl, finalizeColor, _p20.tiles, finishedAnimations)
 				}));
 	});
 var _user$project$Day14_TileGrid$startNewAnimations = F2(
-	function (now, _p19) {
-		var _p20 = _p19;
-		var _p21 = _p20._0;
-		return (_elm_lang$core$Native_Utils.cmp(_p21.lastStartTime + 200, now) < 0) ? A2(
+	function (now, _p21) {
+		var _p22 = _p21;
+		var _p23 = _p22._0;
+		return (_elm_lang$core$Native_Utils.cmp(_p23.lastStartTime + 200, now) < 0) ? A2(
 			_user$project$Day14_TileGrid$startNextTileAnimation,
 			now,
 			A2(
@@ -12560,13 +12565,13 @@ var _user$project$Day14_TileGrid$startNewAnimations = F2(
 					now,
 					_user$project$Day14_TileGrid$Model(
 						_elm_lang$core$Native_Utils.update(
-							_p21,
-							{lastStartTime: now}))))) : _user$project$Day14_TileGrid$Model(_p21);
+							_p23,
+							{lastStartTime: now}))))) : _user$project$Day14_TileGrid$Model(_p23);
 	});
 var _user$project$Day14_TileGrid$changeColors = F3(
-	function (now, newColors, _p22) {
-		var _p23 = _p22;
-		var _p25 = _p23._0;
+	function (now, newColors, _p24) {
+		var _p25 = _p24;
+		var _p27 = _p25._0;
 		var colorFor = F2(
 			function (x, y) {
 				return A2(
@@ -12595,33 +12600,33 @@ var _user$project$Day14_TileGrid$changeColors = F3(
 						acc);
 				}),
 			_elm_lang$core$Array$empty);
-		var _p24 = A2(
+		var _p26 = A2(
 			_elm_lang$core$Random$step,
 			_elm_community$random_extra$Random_Array$shuffle(newAnimations),
 			_elm_lang$core$Random$initialSeed(
 				_elm_lang$core$Basics$floor(now)));
-		var shuffledAnimations = _p24._0;
-		var newSeed = _p24._1;
+		var shuffledAnimations = _p26._0;
+		var newSeed = _p26._1;
 		return A2(
 			_user$project$Day14_TileGrid$startNewAnimations,
 			now,
 			_user$project$Day14_TileGrid$Model(
 				_elm_lang$core$Native_Utils.update(
-					_p25,
+					_p27,
 					{
-						pendingAnimations: A3(_elm_lang$core$Array$foldl, _avh4$elm_fifo$Fifo$insert, _p25.pendingAnimations, shuffledAnimations)
+						pendingAnimations: A3(_elm_lang$core$Array$foldl, _avh4$elm_fifo$Fifo$insert, _p27.pendingAnimations, shuffledAnimations)
 					})));
 	});
 var _user$project$Day14_TileGrid$update = F2(
-	function (now, _p26) {
-		var _p27 = _p26;
+	function (now, _p28) {
+		var _p29 = _p28;
 		return A2(
 			_user$project$Day14_TileGrid$startNewAnimations,
 			now,
 			A2(
 				_user$project$Day14_TileGrid$clearFinishedAnimations,
 				now,
-				_user$project$Day14_TileGrid$Model(_p27._0)));
+				_user$project$Day14_TileGrid$Model(_p29._0)));
 	});
 var _user$project$Main$randomColor = _elm_community$random_extra$Random_Extra$choices(
 	_elm_lang$core$Native_List.fromArray(

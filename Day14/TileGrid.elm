@@ -98,12 +98,16 @@ startNextTileAnimation : Time -> Model -> Model
 startNextTileAnimation now (Model model) =
     case Fifo.remove model.pendingAnimations of
         ( Just ( ( x, y ), newColor ), remainingPendingsAnimations ) ->
-            Model
-                { model
-                    | currentAnimations =
-                        Dict.insert ( x, y ) ( now, newColor ) model.currentAnimations
-                    , pendingAnimations = remainingPendingsAnimations
-                }
+            if Dict.member ( x, y ) model.currentAnimations then
+                -- Don't start a new animation for a tile that is currently animating
+                (Model model)
+            else
+                Model
+                    { model
+                        | currentAnimations =
+                            Dict.insert ( x, y ) ( now, newColor ) model.currentAnimations
+                        , pendingAnimations = remainingPendingsAnimations
+                    }
 
         ( Nothing, remainingPendingsAnimations ) ->
             Model { model | pendingAnimations = remainingPendingsAnimations }
