@@ -9,6 +9,7 @@
     "exposed-modules": [],
     "dependencies": {
         "Kwarrtz/render": "1.0.1 <= v < 2.0.0",
+        "avh4/elm-fifo": "1.0.2 <= v < 2.0.0",
         "elm-community/easing-functions": "1.0.1 <= v < 2.0.0",
         "elm-community/elm-linear-algebra": "2.0.3 <= v < 3.0.0",
         "elm-community/elm-webgl": "3.0.3 <= v < 4.0.0",
