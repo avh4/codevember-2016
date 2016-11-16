@@ -1,0 +1,31 @@
+<html>
+  <head><title>Day 15</title></head>
+<body>
+<script src="color-thief.min.js"></script>
+<script src="Vibrant.min.js"></script>
+<script src="main.js"></script>
+<script>
+    var app = Elm.Main.fullscreen();
+    var colorThief = new ColorThief();
+
+    app.ports.requestImageColors.subscribe(function(imgId) {
+      var sourceImage = document.getElementById(imgId);
+
+      // // ColorThief
+      // var result = colorThief.getPalette(sourceImage, 6);
+      // app.ports.imageColorResults.send(result);
+
+      // Vibrant
+      var vibrant = new Vibrant(sourceImage, 64, 3);
+      var swatches = vibrant.swatches();
+      app.ports.imageColorResults.send([
+        swatches.DarkMuted.getRgb(),
+        swatches.DarkVibrant.getRgb(),
+        swatches.LightVibrant.getRgb(),
+        swatches.Muted.getRgb(),
+        swatches.Vibrant.getRgb(),
+      ])
+    });
+</script>
+<body>
+</html>

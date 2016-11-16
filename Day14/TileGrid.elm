@@ -15,15 +15,15 @@ outAnimation startTime =
     Animation.animation startTime
         |> Animation.from 1.0
         |> Animation.to 0.0
-        |> Animation.duration 800
+        |> Animation.duration 400
 
 
 inAnimation startTime =
     Animation.animation startTime
         |> Animation.from 0.0
         |> Animation.to 1.0
-        |> Animation.duration 800
-        |> Animation.delay 800
+        |> Animation.duration 400
+        |> Animation.delay 400
 
 
 type Model
@@ -134,7 +134,7 @@ clearFinishedAnimations now (Model model) =
 
 startNewAnimations : Time -> Model -> Model
 startNewAnimations now (Model model) =
-    if model.lastStartTime + 200 < now then
+    if model.lastStartTime + 100 < now then
         Model { model | lastStartTime = now }
             |> startNextTileAnimation now
             |> startNextTileAnimation now
