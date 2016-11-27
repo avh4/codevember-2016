@@ -148,7 +148,12 @@ add ( x, y ) ( x1, y1 ) =
     ( x + x1, y + y1 )
 
 
-terraformBoard : TerraformingShape -> Position -> Position -> Dict Position Tile -> Dict Position Tile
+terraformBoard :
+    TerraformingShape
+    -> Position
+    -> Position
+    -> Dict Position Tile
+    -> ( Dict Position Tile, Dict Position Tile )
 terraformBoard relativeFroms fromCenter toCenter tiles =
     let
         calcMovement : ( Int, Int ) -> ( Position, Tile, Maybe Color, Position )
@@ -201,10 +206,18 @@ terraformBoard relativeFroms fromCenter toCenter tiles =
                 withTopsRemoved
                 movements
     in
-        withColorsPushed
+        ( withColorsPushed, withTopsRemoved )
 
 
-makeMove : Position -> Position -> Board -> Board
+makeMove :
+    Position
+    -> Position
+    -> Board
+    -> Maybe
+        { newBoard : Board
+        , partialBoard : Board
+        , movingPieces : List ( ( Player, Piece ), Position, Position )
+        }
 makeMove from to (Board board) =
     let
         piece =
@@ -213,27 +226,40 @@ makeMove from to (Board board) =
         isValidMove =
             not (Dict.member to board.pieces)
 
-        newTiles =
+        ( newTiles, partialTiles ) =
             case piece of
                 Just ( _, TerraformingPiece shape ) ->
                     terraformBoard shape from to board.tiles
 
                 _ ->
-                    board.tiles
+                    ( board.tiles, board.tiles )
     in
         case ( piece, isValidMove ) of
             ( Just piece, True ) ->
-                Board
-                    { board
-                        | pieces =
-                            board.pieces
-                                |> Dict.remove from
-                                |> Dict.insert to piece
-                        , tiles = newTiles
+                Just
+                    { newBoard =
+                        Board
+                            { board
+                                | pieces =
+                                    board.pieces
+                                        |> Dict.remove from
+                                        |> Dict.insert to piece
+                                , tiles = newTiles
+                            }
+                    , partialBoard =
+                        Board
+                            { board
+                                | pieces =
+                                    board.pieces
+                                        |> Dict.remove from
+                                , tiles = partialTiles
+                            }
+                    , movingPieces =
+                        [ ( piece, from, to ) ]
                     }
 
             _ ->
-                Board board
+                Nothing
 
 
 view : (Position -> Tile -> Maybe ( Player, Piece ) -> result) -> Board -> List (List result)
