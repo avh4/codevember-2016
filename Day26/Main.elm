@@ -12,6 +12,8 @@ import Random
 import Time exposing (Time)
 import Task
 import AnimationFrame
+import Color exposing (Color)
+import Ease
 
 
 type alias Model =
@@ -19,7 +21,7 @@ type alias Model =
     , selectedTile : Maybe Board.Position
     , now : Time
     , animation :
-        Maybe ( Time, Board, List ( ( Board.Player, Board.Piece ), Board.Position, Board.Position ) )
+        Maybe ( Time, Board, List ( ( Board.Player, Board.Piece ), Board.Position, Board.Position ), List ( Color, Board.Position, Board.Position ) )
     }
 
 
@@ -46,10 +48,16 @@ updateMove from to model =
                 |> Maybe.andThen (Board.makeMove from to)
     in
         case result of
-            Just { newBoard, partialBoard, movingPieces } ->
+            Just { newBoard, partialBoard, movingPieces, movingTiles } ->
                 { model
                     | board = Just newBoard
-                    , animation = Just ( model.now, partialBoard, movingPieces )
+                    , animation =
+                        Just
+                            ( model.now
+                            , partialBoard
+                            , movingPieces
+                            , movingTiles
+                            )
                 }
 
             Nothing ->
@@ -67,7 +75,7 @@ checkForAnimationEnd model =
         Nothing ->
             model
 
-        Just ( startTime, _, _ ) ->
+        Just ( startTime, _, _, _ ) ->
             if model.now >= startTime + animationDuration then
                 { model | animation = Nothing }
             else
@@ -234,40 +242,81 @@ view model =
                     , Html.Attributes.style [ ( "max-height", "100vh" ) ]
                     ]
 
-        ( Just ( startTime, partialBoard, movingPieces ), _ ) ->
-            [ renderBoard partialBoard Nothing
-                |> Svg.g []
-            , movingPieces
-                |> List.map
-                    (\( ( player, piece ), ( x1, y1 ), ( x2, y2 ) ) ->
-                        let
-                            p =
-                                (model.now - startTime)
-                                    / animationDuration
-                                    |> max 0
-                                    |> min 1
+        ( Just ( startTime, partialBoard, movingPieces, movingTiles ), _ ) ->
+            let
+                p =
+                    (model.now - startTime)
+                        / animationDuration
+                        |> max 0
+                        |> min 1
+                        |> Ease.inOutQuad
 
-                            interp a b =
-                                toFloat a + p * toFloat (b - a)
+                interp a b =
+                    toFloat a + p * toFloat (b - a)
 
-                            x =
-                                interp x1 x2 - 1
+                place ( x1, y1 ) ( x2, y2 ) svg =
+                    -- r = (sqrt (x2 - x1) ^2 + (y2 - y1)^2) / 2
+                    -- p0 = arccos ((cx - x1) / r)  -- x1 = cx + r * cos p0
+                    -- x = cx + r * cos (p - p0)
+                    -- y = cy + r * sin (p - p0)
+                    let
+                        cx =
+                            toFloat (x1 + x2) / 2
 
-                            y =
-                                interp y1 y2 - 1
-                        in
-                            [ renderPiece Nothing False player piece ]
-                                |> Svg.g
-                                    [ Svg.Attributes.transform
-                                        ("translate(" ++ toString (x * 10) ++ "," ++ toString (y * 10) ++ ")")
-                                    ]
-                    )
-                |> Svg.g []
-            ]
-                |> Svg.svg
-                    [ Svg.Attributes.viewBox "-5 -5 80 80"
-                    , Html.Attributes.style [ ( "max-height", "100vh" ) ]
-                    ]
+                        cy =
+                            toFloat (y1 + y2) / 2
+
+                        r =
+                            sqrt (toFloat (x2 - x1) ^ 2 + toFloat (y2 - y1) ^ 2) / 2
+
+                        p0 =
+                            acos ((cx - toFloat x1) / r)
+
+                        x =
+                            cx + -r * cos (p * pi - p0) - 1
+
+                        y =
+                            cy + -r * sin (p * pi - p0) - 1
+                    in
+                        [ svg ]
+                            |> Svg.g
+                                [ Svg.Attributes.transform <|
+                                    "translate("
+                                        ++ toString (x * 10)
+                                        ++ ","
+                                        ++ toString (y * 10)
+                                        ++ ")"
+                                ]
+            in
+                [ renderBoard partialBoard Nothing
+                    |> Svg.g []
+                , movingTiles
+                    |> List.map
+                        (\( color, from, to ) ->
+                            Svg.rect
+                                [ Svg.Attributes.x "-5"
+                                , Svg.Attributes.y "-5"
+                                , Svg.Attributes.width "10"
+                                , Svg.Attributes.height "10"
+                                , Svg.Attributes.fill (Color.Convert.colorToHex color)
+                                , Html.Attributes.style [ ( "box-shadow", "-5px -5px 5px #888" ) ]
+                                ]
+                                []
+                                |> place from to
+                        )
+                    |> Svg.g []
+                , movingPieces
+                    |> List.map
+                        (\( ( player, piece ), from, to ) ->
+                            renderPiece Nothing False player piece
+                                |> place from to
+                        )
+                    |> Svg.g []
+                ]
+                    |> Svg.svg
+                        [ Svg.Attributes.viewBox "-5 -5 80 80"
+                        , Html.Attributes.style [ ( "max-height", "100vh" ) ]
+                        ]
 
 
 main : Program Never Model Msg

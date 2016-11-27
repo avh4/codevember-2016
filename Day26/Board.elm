@@ -153,7 +153,7 @@ terraformBoard :
     -> Position
     -> Position
     -> Dict Position Tile
-    -> ( Dict Position Tile, Dict Position Tile )
+    -> ( Dict Position Tile, Dict Position Tile, List ( Color, Position, Position ) )
 terraformBoard relativeFroms fromCenter toCenter tiles =
     let
         calcMovement : ( Int, Int ) -> ( Position, Tile, Maybe Color, Position )
@@ -206,7 +206,19 @@ terraformBoard relativeFroms fromCenter toCenter tiles =
                 withTopsRemoved
                 movements
     in
-        ( withColorsPushed, withTopsRemoved )
+        ( withColorsPushed
+        , withTopsRemoved
+        , movements
+            |> List.filterMap
+                (\( from, _, color, to ) ->
+                    case color of
+                        Nothing ->
+                            Nothing
+
+                        Just c ->
+                            Just ( c, from, to )
+                )
+        )
 
 
 makeMove :
@@ -217,6 +229,7 @@ makeMove :
         { newBoard : Board
         , partialBoard : Board
         , movingPieces : List ( ( Player, Piece ), Position, Position )
+        , movingTiles : List ( Color, Position, Position )
         }
 makeMove from to (Board board) =
     let
@@ -226,13 +239,13 @@ makeMove from to (Board board) =
         isValidMove =
             not (Dict.member to board.pieces)
 
-        ( newTiles, partialTiles ) =
+        ( newTiles, partialTiles, movingTiles ) =
             case piece of
                 Just ( _, TerraformingPiece shape ) ->
                     terraformBoard shape from to board.tiles
 
                 _ ->
-                    ( board.tiles, board.tiles )
+                    ( board.tiles, board.tiles, [] )
     in
         case ( piece, isValidMove ) of
             ( Just piece, True ) ->
@@ -256,6 +269,7 @@ makeMove from to (Board board) =
                             }
                     , movingPieces =
                         [ ( piece, from, to ) ]
+                    , movingTiles = movingTiles
                     }
 
             _ ->
