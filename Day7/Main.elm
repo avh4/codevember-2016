@@ -215,7 +215,7 @@ void main () {
     // Diffuse lighting
     vec3 norm = normalize(vnormal);
     vec3 lightDir = normalize(lightPos - vpos);
-    float diff = max(dot(vnormal, lightDir), 0.0);
+    float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
 
     // Specular lighting
