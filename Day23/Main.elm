@@ -80,6 +80,20 @@ renderBlade i blade =
         []
 
 
+pointer : Float -> Svg msg
+pointer pct =
+    let
+        pointerPosition =
+            "translate(" ++ (toString <| (pct * 50) - 50 / 2) ++ ",37)"
+    in
+        Svg.polygon
+            [ Svg.Attributes.points "-1,0 0,-2 1,0 0,2"
+            , Svg.Attributes.fill "#ffc"
+            , Svg.Attributes.transform pointerPosition
+            ]
+            []
+
+
 view : Model -> Html msg
 view model =
     Svg.svg
@@ -95,6 +109,7 @@ view model =
             , Svg.Attributes.fill "#222"
             ]
             []
+        , pointer <| toFloat model.mousePosition.x / toFloat model.windowSize.width
         , List.indexedMap renderBlade model.blades
             |> Svg.g [ Svg.Attributes.transform "translate(0,35)" ]
         ]
